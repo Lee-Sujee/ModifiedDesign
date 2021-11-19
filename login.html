@@ -102,7 +102,7 @@
                   <div class="text-bg">
                     <h1> 내누리 서비스 이용을 위해<br/>
 						"구글 로그인"을 해주세요!</h1>
-						<div class="g-signin2" data-onsuccess="onSignIn" float = center data-width = "250px" data-height = "60px"data-theme="dark"></div>
+						<div class="g-signin2" data-onsuccess="onSignIn" data-width="230" data-height="65" data-theme="dark"></div>
 						
 						<script>
 							let button = () => {
@@ -125,14 +125,90 @@
 							console.log("ID Token: " + id_token);
 							}
 
-							<a href = '#' onclick = "signOut();">로그아웃</a>
+						  <a href = '#' onclick = "signOut();">로그아웃</a>
 							function signOut() {
 								gapi.auth2.getAuthInstance().disconnect();
 							}
 							
 						</script>
+            
 		
 						
+    <a href="#0" id="kakaoLogin"><img src="images/kakao_login.png" alt="카카오계정 로그인" style="height: 60px;"/></a>
+
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script>
+        function saveToDos(token) { //item을 localStorage에 저장합니다. 
+            typeof(Storage) !== 'undefined' && sessionStorage.setItem('AccessKEY', JSON.stringify(token)); 
+        };
+
+        window.Kakao.init('595488794acbf4709e38c8c245201398');
+        
+        function kakaoLogin() {
+            window.Kakao.Auth.login({
+                scope: 'account_email', //동의항목 페이지에 있는 개인정보 보호 테이블의 활성화된 ID값을 넣습니다.
+                success: function(response) {
+                    saveToDos(response.access_token)  // 로그인 성공하면 사용자 엑세스 토큰 sessionStorage에 저장
+                    window.Kakao.API.request({ // 사용자 정보 가져오기 
+                        url: '/v2/user/me',
+                        success: (res) => {
+                            const kakao_account = res.kakao_account;
+                            alert('로그인 성공');
+                            //window.location.href='kakao_login.html'
+                        }
+                    });
+                },
+                fail: function(error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        const login = document.querySelector('#kakaoLogin');
+        login.addEventListener('click', kakaoLogin);
+    </script>
+
+<a href="#0" id="kakaoLogout">로그아웃</a> | 
+<a href="#0" id="secession">탈퇴</a>
+
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+
+    window.Kakao.init('595488794acbf4709e38c8c245201398');
+    window.Kakao.Auth.setAccessToken(JSON.parse(sessionStorage.getItem('AccessKEY'))); //sessionStorage에 저장된 사용자 엑세스 토큰 받아온다.
+    
+    function kakaoLogout() {
+        if (!Kakao.Auth.getAccessToken()) {
+            console.log('Not logged in.');
+            return;
+        }
+        Kakao.Auth.logout(function(response) {
+            alert(response +' logout');
+            window.location.href='/'
+        });
+    };
+
+    function secession() {
+        Kakao.API.request({
+            url: '/v1/user/unlink',
+            success: function(response) {
+                console.log(response);
+                //callback(); //연결끊기(탈퇴)성공시 서버에서 처리할 함수
+                window.location.href='/'
+            },
+            fail: function(error) {
+                console.log('탈퇴 미완료')
+                console.log(error);
+            },
+        });
+    };
+
+    const logout = document.querySelector('#kakaoLogout');
+    const sion = document.querySelector('#secession');
+
+    logout.addEventListener('click', kakaoLogout);
+    sion.addEventListener('click', secession);
+</script>
 							
                   
                 	</div>
